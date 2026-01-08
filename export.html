@@ -1,0 +1,1163 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inventaire de graines</title>
+
+<!-- Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card-img-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-img-top {
+  height: 220px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover .card-img-top {
+  transform: scale(1.05);
+}
+
+.pack-state {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+}
+
+.pack-state .badge {
+  font-size: 0.9rem;
+  padding: 6px 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+header {
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.card {
+  border: none;
+  border-radius: 16px;
+  overflow: hidden;
+  background: white;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.shadow-hover {
+  box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+}
+
+.shadow-hover:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+.card-title {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #2c3e50;
+  margin-bottom: 0.75rem;
+}
+
+.bg-gradient-green {
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+}
+
+.code-badge {
+  color: #7f8c8d;
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
+
+.agro-info {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #ecf0f1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.agro-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  color: #34495e;
+}
+
+.agro-item .icon {
+  font-size: 1.1rem;
+}
+
+.card-footer {
+  background: transparent;
+  border-top: none;
+  padding: 0 1.5rem 1.5rem;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #2980b9, #21618c);
+  transform: scale(1.02);
+}
+
+.product-card {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.product-card.hide {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.9);
+  position: absolute;
+}
+
+.form-control, .form-select {
+  border-radius: 10px;
+  border: 2px solid #ecf0f1;
+  padding: 12px 16px;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.btn-outline-secondary {
+  border-radius: 10px;
+  border: 2px solid #ecf0f1;
+  font-weight: 600;
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-secondary:hover {
+  background: #ecf0f1;
+  border-color: #bdc3c7;
+}
+
+.container > .row.mb-4 {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+}
+
+@media (max-width: 768px) {
+  .card-img-top {
+    height: 180px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header class="py-5 mb-5">
+  <div class="container">
+    <h1 class="fw-bold display-4">🌱 Inventaire de graines</h1>
+    <p class="mb-0 fs-5 opacity-90">Collection personnelle — 45 variétés de semences</p>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Filters -->
+  <div class="row mb-4 g-2 align-items-end">
+    <div class="col-md-6">
+      <label class="form-label">Recherche</label>
+      <input id="searchInput" class="form-control" placeholder="Nom, variété…">
+    </div>
+
+    <div class="col-md-4">
+      <label class="form-label">Famille</label>
+      <select id="familyFilter" class="form-select">
+        <option value="">Toutes</option>
+        <option value="amarante à grain">Amarante à grain</option><option value="cannabis">Cannabis</option><option value="carthames">Carthames</option><option value="coriandres">Coriandres</option><option value="courges en mélange">Courges en mélange</option><option value="courges maxima">Courges maxima</option><option value="courges moschata">Courges moschata</option><option value="courges pepo">Courges pepo</option><option value="courgettes">Courgettes</option><option value="fèves">Fèves</option><option value="haricots mangetout">Haricots mangetout</option><option value="ipomée">Ipomée</option><option value="maïs">Maïs</option><option value="melons">Melons</option><option value="pastèques">Pastèques</option><option value="physalis">Physalis</option><option value="pois">Pois</option><option value="quinoas">Quinoas</option><option value="riz">Riz</option><option value="tomates">Tomates</option><option value="tournesols à grains">Tournesols à grains</option>
+      </select>
+    </div>
+
+    <div class="col-md-2 d-grid">
+      <button id="resetBtn" class="btn btn-outline-secondary">Reset</button>
+    </div>
+  </div>
+
+  <!-- Cards -->
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4" id="productGrid">
+    
+        <div class="col product-card" data-famille="ipomée">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/e0260-1.jpg" class="card-img-top" alt="Grandpa Ott">
+              <div class="pack-state"><span class="badge bg-success">100%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Grandpa Ott</h5>
+              <span class="badge bg-gradient-green mb-3">Ipomée</span>
+              <div class="code-badge"><small>#E0260</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Avril, Mai, Juin</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juin, Juillet, Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>fort</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/E0260-Grandpa-Ott" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="physalis">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/p4905-1.jpg" class="card-img-top" alt="Aunt Molly">
+              <div class="pack-state"><span class="badge bg-success">100%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Aunt Molly</h5>
+              <span class="badge bg-gradient-green mb-3">Physalis</span>
+              <div class="code-badge"><small>#P4905</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>nan</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juillet, Août, Septembre, Octobre, Novembre, Décembre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>moyen</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/P4905-Aunt-Molly" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="cannabis">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/f1817-1.jpg" class="card-img-top" alt="Kompolti">
+              <div class="pack-state"><span class="badge bg-success">100%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Kompolti</h5>
+              <span class="badge bg-gradient-green mb-3">Cannabis</span>
+              <div class="code-badge"><small>#F1817</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Avril, Mai, Juin</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juillet, Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>faible</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/F1817-Kompolti" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="cannabis">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/f1755-1.jpg" class="card-img-top" alt="Carmagnola">
+              <div class="pack-state"><span class="badge bg-success">100%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Carmagnola</h5>
+              <span class="badge bg-gradient-green mb-3">Cannabis</span>
+              <div class="code-badge"><small>#F1755</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Avril, Mai, Juin</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juillet, Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>faible</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/F1755-Carmagnola" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="cannabis">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/f1947-1.jpg" class="card-img-top" alt="Pool Génétique">
+              <div class="pack-state"><span class="badge bg-success">100%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Pool Génétique</h5>
+              <span class="badge bg-gradient-green mb-3">Cannabis</span>
+              <div class="code-badge"><small>#F1947</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Avril, Mai, Juin</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juillet, Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>faible</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/F1947-Pool-Genetique" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="courges pepo">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/p2137-1.jpg" class="card-img-top" alt="Baby Boo">
+              <div class="pack-state"><span class="badge bg-success">100%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Baby Boo</h5>
+              <span class="badge bg-gradient-green mb-3">Courges pepo</span>
+              <div class="code-badge"><small>#P2137</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Avril, Mai, Juin</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juin, Juillet, Août, Septembre, Octobre, Novembre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>fort</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/P2137-Baby-Boo" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="quinoas">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/g0967-1.jpg" class="card-img-top" alt="Appelewa">
+              <div class="pack-state"><span class="badge bg-success">100%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Appelewa</h5>
+              <span class="badge bg-gradient-green mb-3">Quinoas</span>
+              <div class="code-badge"><small>#G0967</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Avril, Mai, Juin</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juillet, Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>faible</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/G0967-Appelewa" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="carthames">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/f1003-1.jpg" class="card-img-top" alt="Orange Grenade">
+              <div class="pack-state"><span class="badge bg-success">100%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Orange Grenade</h5>
+              <span class="badge bg-gradient-green mb-3">Carthames</span>
+              <div class="code-badge"><small>#F1003</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Mai, Juin</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juillet, Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>faible</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/F1003-Orange-Grenade" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="riz">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/g0924-1.jpg" class="card-img-top" alt="Duborskian">
+              <div class="pack-state"><span class="badge bg-success">100%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Duborskian</h5>
+              <span class="badge bg-gradient-green mb-3">Riz</span>
+              <div class="code-badge"><small>#G0924</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Mars, Avril, Mai</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juillet, Août, Septembre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>fort</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/G0924-Duborskian" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="pois">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/p9915-1.jpg" class="card-img-top" alt="Géant Suisse">
+              <div class="pack-state"><span class="badge bg-success">100%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Géant Suisse</h5>
+              <span class="badge bg-gradient-green mb-3">Pois</span>
+              <div class="code-badge"><small>#P9915</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Février, Mars, Avril, Mai, Juin, Octobre, Novembre</span></div><div class="agro-item"><span class="icon">🌾</span><span>Avril, Mai, Juin, Juillet, Août, Septembre</span></div><div class="agro-item"><span class="icon">☀️</span><span>mi-ombre, ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>moyen</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/P9915-Geant-Suisse" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="cannabis">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/f1817-1.jpg" class="card-img-top" alt="Kompolti">
+              <div class="pack-state"><span class="badge bg-success">100%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Kompolti</h5>
+              <span class="badge bg-gradient-green mb-3">Cannabis</span>
+              <div class="code-badge"><small>#F1817</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Avril, Mai, Juin</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juillet, Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>faible</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/F1817-Kompolti" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="courges pepo">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/p2126-1.jpg" class="card-img-top" alt="Styrian Hulless">
+              <div class="pack-state"><span class="badge bg-success">100%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Styrian Hulless</h5>
+              <span class="badge bg-gradient-green mb-3">Courges pepo</span>
+              <div class="code-badge"><small>#P2126</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Avril, Mai, Juin</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juin, Juillet, Août, Septembre, Octobre, Novembre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>fort</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/P2126-Styrian-Hulless" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="amarante à grain">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/g0135-1.jpg" class="card-img-top" alt="Plenitude Rouge K436">
+              <div class="pack-state"><span class="badge bg-success">100%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Plenitude Rouge K436</h5>
+              <span class="badge bg-gradient-green mb-3">Amarante à grain</span>
+              <div class="code-badge"><small>#G0135</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Avril, Mai, Juin</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juin, Juillet, Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>faible</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/G0135-Plenitude-Rouge-K-436" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="quinoas">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/g0967-1.jpg" class="card-img-top" alt="Appelewa">
+              <div class="pack-state"><span class="badge bg-success">100%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Appelewa</h5>
+              <span class="badge bg-gradient-green mb-3">Quinoas</span>
+              <div class="code-badge"><small>#G0967</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Avril, Mai, Juin</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juillet, Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>faible</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/G0967-Appelewa" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="riz">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/g0924-1.jpg" class="card-img-top" alt="Duborskian">
+              <div class="pack-state"><span class="badge bg-success">100%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Duborskian</h5>
+              <span class="badge bg-gradient-green mb-3">Riz</span>
+              <div class="code-badge"><small>#G0924</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Mars, Avril, Mai</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juillet, Août, Septembre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>fort</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/G0924-Duborskian" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="cannabis">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/f1755-1.jpg" class="card-img-top" alt="Carmagnola">
+              <div class="pack-state"><span class="badge bg-success">100%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Carmagnola</h5>
+              <span class="badge bg-gradient-green mb-3">Cannabis</span>
+              <div class="code-badge"><small>#F1755</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Avril, Mai, Juin</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juillet, Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>faible</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/F1755-Carmagnola" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="haricots mangetout">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/p3400-1.jpg" class="card-img-top" alt="Contender">
+              <div class="pack-state"><span class="badge bg-success">100%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Contender</h5>
+              <span class="badge bg-gradient-green mb-3">Haricots mangetout</span>
+              <div class="code-badge"><small>#P3400</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Mai, Juin, Juillet</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juillet, Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>fort</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/P3400-Contender" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="pois">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/p9915-1.jpg" class="card-img-top" alt="Géant Suisse">
+              <div class="pack-state"><span class="badge bg-success">100%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Géant Suisse</h5>
+              <span class="badge bg-gradient-green mb-3">Pois</span>
+              <div class="code-badge"><small>#P9915</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Février, Mars, Avril, Mai, Juin, Octobre, Novembre</span></div><div class="agro-item"><span class="icon">🌾</span><span>Avril, Mai, Juin, Juillet, Août, Septembre</span></div><div class="agro-item"><span class="icon">☀️</span><span>mi-ombre, ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>moyen</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/P9915-Geant-Suisse" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="haricots mangetout">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/p3400-1.jpg" class="card-img-top" alt="Contender">
+              <div class="pack-state"><span class="badge bg-success">100%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Contender</h5>
+              <span class="badge bg-gradient-green mb-3">Haricots mangetout</span>
+              <div class="code-badge"><small>#P3400</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Mai, Juin, Juillet</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juillet, Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>fort</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/P3400-Contender" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="fèves">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/p8805-1.jpg" class="card-img-top" alt="D’Aquadulce">
+              <div class="pack-state"><span class="badge bg-success">100%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">D’Aquadulce</h5>
+              <span class="badge bg-gradient-green mb-3">Fèves</span>
+              <div class="code-badge"><small>#P8805</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Février, Mars, Avril, Octobre, Novembre</span></div><div class="agro-item"><span class="icon">🌾</span><span>Mai, Juin, Juillet</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>moyen</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/P8805-D-Aquadulce" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="courges moschata">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/p2305-1.jpg" class="card-img-top" alt="Butternut Ponca">
+              <div class="pack-state"><span class="badge bg-success">100%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Butternut Ponca</h5>
+              <span class="badge bg-gradient-green mb-3">Courges moschata</span>
+              <div class="code-badge"><small>#P2305</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Avril, Mai, Juin</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juillet, Août, Septembre, Octobre, Novembre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>fort</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/P2305-Butternut-Ponca" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="fèves">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/p8805-1.jpg" class="card-img-top" alt="D’Aquadulce">
+              <div class="pack-state"><span class="badge bg-success">100%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">D’Aquadulce</h5>
+              <span class="badge bg-gradient-green mb-3">Fèves</span>
+              <div class="code-badge"><small>#P8805</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Février, Mars, Avril, Octobre, Novembre</span></div><div class="agro-item"><span class="icon">🌾</span><span>Mai, Juin, Juillet</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>moyen</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/P8805-D-Aquadulce" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="ipomée">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/e0260-1.jpg" class="card-img-top" alt="Grandpa Ott">
+              <div class="pack-state"><span class="badge bg-success">100%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Grandpa Ott</h5>
+              <span class="badge bg-gradient-green mb-3">Ipomée</span>
+              <div class="code-badge"><small>#E0260</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Avril, Mai, Juin</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juin, Juillet, Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>fort</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/E0260-Grandpa-Ott" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="maïs">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/default/product.png" class="card-img-top" alt="Glass Gem">
+              <div class="pack-state"><span class="badge bg-success">100%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Glass Gem</h5>
+              <span class="badge bg-gradient-green mb-3">Maïs</span>
+              <div class="code-badge"><small>#G0989</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Mai, Juin</span></div><div class="agro-item"><span class="icon">🌾</span><span>Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>moyen</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/G0989-Glass-Gem" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="tournesols à grains">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/g0720-1.jpg" class="card-img-top" alt="Skyscraper">
+              <div class="pack-state"><span class="badge bg-success">100%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Skyscraper</h5>
+              <span class="badge bg-gradient-green mb-3">Tournesols à grains</span>
+              <div class="code-badge"><small>#G0720</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Avril, Mai, Juin</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juillet, Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>moyen</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/G0720-Skyscraper" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="coriandres">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/c0167-1.jpg" class="card-img-top" alt="Coriandre Cultivée">
+              <div class="pack-state"><span class="badge bg-success">80%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Coriandre Cultivée</h5>
+              <span class="badge bg-gradient-green mb-3">Coriandres</span>
+              <div class="code-badge"><small>#C0167</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Avril, Mai, Juin, Juillet, Août, Septembre</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juin, Juillet, Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>moyen</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/C0167-Cultivee" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="melons">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/p4370-1.jpg" class="card-img-top" alt="De Montréal">
+              <div class="pack-state"><span class="badge bg-success">90%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">De Montréal</h5>
+              <span class="badge bg-gradient-green mb-3">Melons</span>
+              <div class="code-badge"><small>#P4370</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Avril, Mai</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juillet, Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>fort</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/P4370-De-Montreal" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="melons">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/p4331-1.jpg" class="card-img-top" alt="Hearts Of Gold">
+              <div class="pack-state"><span class="badge bg-success">90%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Hearts Of Gold</h5>
+              <span class="badge bg-gradient-green mb-3">Melons</span>
+              <div class="code-badge"><small>#P4331</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Avril, Mai</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juillet, Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>fort</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/P4331-Hearts-Of-Gold" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="courges maxima">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/p2286-1.jpg" class="card-img-top" alt="Jaune Gros de Paris">
+              <div class="pack-state"><span class="badge bg-success">90%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Jaune Gros de Paris</h5>
+              <span class="badge bg-gradient-green mb-3">Courges maxima</span>
+              <div class="code-badge"><small>#P2286</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Avril, Mai, Juin</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juillet, Août, Septembre, Octobre, Novembre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>fort</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/P2286-Jaune-Gros-de-Paris" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="courges maxima">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/l0769-1.jpg" class="card-img-top" alt="Potimarron à Gros Fruits">
+              <div class="pack-state"><span class="badge bg-success">90%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Potimarron à Gros Fruits</h5>
+              <span class="badge bg-gradient-green mb-3">Courges maxima</span>
+              <div class="code-badge"><small>#L0769</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Avril, Mai, Juin</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juillet, Août, Septembre, Octobre, Novembre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>fort</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/L0769-Potimarron-a-Gros-Fruits" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="courges pepo">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/p2121-1.jpg" class="card-img-top" alt="New England Pie / Small Sugar">
+              <div class="pack-state"><span class="badge bg-warning">50%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">New England Pie / Small Sugar</h5>
+              <span class="badge bg-gradient-green mb-3">Courges pepo</span>
+              <div class="code-badge"><small>#P2121</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Avril, Mai, Juin</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juin, Juillet, Août, Septembre, Octobre, Novembre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>fort</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/P2121-New-England-Pie-Small-Sugar" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="courges en mélange">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/default/product.png" class="card-img-top" alt="Courge en mélange">
+              <div class="pack-state"><span class="badge bg-success">100%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Courge en mélange</h5>
+              <span class="badge bg-gradient-green mb-3">Courges en mélange</span>
+              <div class="code-badge"><small>#L0865</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Avril, Mai, Juin</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juillet, Août, Septembre, Octobre, Novembre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>moyen</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/L0865-Courge" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="courges moschata">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/p2399-1.jpg" class="card-img-top" alt="Butternut Honey Nut">
+              <div class="pack-state"><span class="badge bg-warning">70%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Butternut Honey Nut</h5>
+              <span class="badge bg-gradient-green mb-3">Courges moschata</span>
+              <div class="code-badge"><small>#P2399</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Avril, Mai, Juin</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juillet, Août, Septembre, Octobre, Novembre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>fort</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/P2399-Butternut-Honey-Nut" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="courgettes">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/p2610-1.jpg" class="card-img-top" alt="Ortolana Di Faenza">
+              <div class="pack-state"><span class="badge bg-success">80%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Ortolana Di Faenza</h5>
+              <span class="badge bg-gradient-green mb-3">Courgettes</span>
+              <div class="code-badge"><small>#P2610</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Avril, Mai, Juin</span></div><div class="agro-item"><span class="icon">🌾</span><span>Mai, Juin, Juillet, Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>moyen</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/P2610-Ortolana-Di-Faenza" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="pastèques">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/l0672-1.jpg" class="card-img-top" alt="Déhibé">
+              <div class="pack-state"><span class="badge bg-success">90%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Déhibé</h5>
+              <span class="badge bg-gradient-green mb-3">Pastèques</span>
+              <div class="code-badge"><small>#L0672</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Avril, Mai</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juillet, Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>moyen</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/L0672-Dehibe" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="pastèques">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/p4820-1.jpg" class="card-img-top" alt="Crimson Sweet">
+              <div class="pack-state"><span class="badge bg-success">90%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Crimson Sweet</h5>
+              <span class="badge bg-gradient-green mb-3">Pastèques</span>
+              <div class="code-badge"><small>#P4820</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Avril, Mai</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juillet, Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>moyen</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/P4820-Crimson-Sweet" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="tomates">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/p6141-1.jpg" class="card-img-top" alt="Brin de Muguet">
+              <div class="pack-state"><span class="badge bg-success">80%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Brin de Muguet</h5>
+              <span class="badge bg-gradient-green mb-3">Tomates</span>
+              <div class="code-badge"><small>#P6141</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>fevrier, Mars,avril,mai</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juin, Juillet, Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>plein soleil</span></div><div class="agro-item"><span class="icon">💧</span><span>moyen</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/P6141-Brin-de-Muguet" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="tomates">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/p6116-1.jpg" class="card-img-top" alt="Oregon Spring">
+              <div class="pack-state"><span class="badge bg-success">80%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Oregon Spring</h5>
+              <span class="badge bg-gradient-green mb-3">Tomates</span>
+              <div class="code-badge"><small>#p6116</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Fevrier, Mars,Avril, Mai</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juin, Juillet, Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>plein soleil</span></div><div class="agro-item"><span class="icon">💧</span><span>moyen</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/P6116-Oregon-Spring" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="tomates">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/p6013-1.jpg" class="card-img-top" alt="Sasha Altaï">
+              <div class="pack-state"><span class="badge bg-success">80%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Sasha Altaï</h5>
+              <span class="badge bg-gradient-green mb-3">Tomates</span>
+              <div class="code-badge"><small>#p6013</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Fevrier, Mars,Avril,Mai</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juin, Juillet, Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>plein soleil</span></div><div class="agro-item"><span class="icon">💧</span><span>moyen</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/P6013-Sasha-Altai" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="tomates">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/p6133-1.jpg" class="card-img-top" alt="Fireworks">
+              <div class="pack-state"><span class="badge bg-success">100%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Fireworks</h5>
+              <span class="badge bg-gradient-green mb-3">Tomates</span>
+              <div class="code-badge"><small>#p6133</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Fevrier, Mars,Avril,Mai</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juin, Juillet, Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>plein soleil</span></div><div class="agro-item"><span class="icon">💧</span><span>moyen</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/P6133-Fireworks" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="tomates">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/p6702-1.jpg" class="card-img-top" alt="Lemon Bush">
+              <div class="pack-state"><span class="badge bg-success">80%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Lemon Bush</h5>
+              <span class="badge bg-gradient-green mb-3">Tomates</span>
+              <div class="code-badge"><small>#p6702</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Fevrier, Mars,Avril,Mai</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juillet, Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>plein soleil</span></div><div class="agro-item"><span class="icon">💧</span><span>moyen</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/P6702-Lemon-Bush" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="tomates">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/p6271-1.jpg" class="card-img-top" alt="Cœur de Bœuf Géant / Reif Red">
+              <div class="pack-state"><span class="badge bg-success">100%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Cœur de Bœuf Géant / Reif Red</h5>
+              <span class="badge bg-gradient-green mb-3">Tomates</span>
+              <div class="code-badge"><small>#p6271</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Fevrier, Mars,Avril</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juin, Juillet, Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>plein soleil</span></div><div class="agro-item"><span class="icon">💧</span><span>moyen</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/P6271-Coeur-de-Boeuf-Geant-Reif-Red" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="tomates">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/p6225-1.jpg" class="card-img-top" alt="Géante d’Orenbourg">
+              <div class="pack-state"><span class="badge bg-success">80%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Géante d’Orenbourg</h5>
+              <span class="badge bg-gradient-green mb-3">Tomates</span>
+              <div class="code-badge"><small>#P6225</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Fevrier, Mars,Avril</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juin, Juillet, Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>plein soleil</span></div><div class="agro-item"><span class="icon">💧</span><span>moyen</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/P6225-Geante-d-Orenbourg" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="pois">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/p9905-1.jpg" class="card-img-top" alt="Douce Provence">
+              <div class="pack-state"><span class="badge bg-warning">50%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Douce Provence</h5>
+              <span class="badge bg-gradient-green mb-3">Pois</span>
+              <div class="code-badge"><small>#p9905</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Février, Mars, Avril, Mai, Juin, Octobre, Novembre</span></div><div class="agro-item"><span class="icon">🌾</span><span>Avril, Mai, Juin, Juillet, Août, Septembre</span></div><div class="agro-item"><span class="icon">☀️</span><span>mi-ombre, ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>moyen</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/P9905-Douce-Provence" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col product-card" data-famille="haricots mangetout">
+          <div class="card h-100 shadow-hover">
+            <div class="card-img-wrapper">
+              <img src="https://kokopelli-semences.fr/media/cache/shop_product_tiny_thumbnail/p3410-1.jpg" class="card-img-top" alt="Beurre de Rocquencourt">
+              <div class="pack-state"><span class="badge bg-warning">60%</span></div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">Beurre de Rocquencourt</h5>
+              <span class="badge bg-gradient-green mb-3">Haricots mangetout</span>
+              <div class="code-badge"><small>#p3410</small></div>
+              <div class="agro-info"><div class="agro-item"><span class="icon">🌱</span><span>Mai, Juin, Juillet</span></div><div class="agro-item"><span class="icon">🌾</span><span>Juillet, Août, Septembre, Octobre</span></div><div class="agro-item"><span class="icon">☀️</span><span>ensoleillée</span></div><div class="agro-item"><span class="icon">💧</span><span>fort</span></div></div>
+            </div>
+            <div class="card-footer">
+              <a href="https://kokopelli-semences.fr/fr/p/P3410-Beurre-de-Rocquencourt" target="_blank" class="btn btn-primary w-100">
+                <span>Voir produit</span> →
+              </a>
+            </div>
+          </div>
+        </div>
+        
+  </div>
+
+</div>
+
+<script>
+const searchInput = document.getElementById("searchInput");
+const familyFilter = document.getElementById("familyFilter");
+const resetBtn = document.getElementById("resetBtn");
+const cards = document.querySelectorAll(".product-card");
+
+function applyFilters() {{
+  const text = searchInput.value.toLowerCase();
+  const family = familyFilter.value;
+
+  cards.forEach(card => {{
+    const content = card.innerText.toLowerCase();
+    const cardFamily = card.dataset.famille;
+
+    const matchText = content.includes(text);
+    const matchFamily = !family || cardFamily === family;
+
+    card.classList.toggle("hide", !(matchText && matchFamily));
+  }});
+}}
+
+searchInput.addEventListener("input", applyFilters);
+familyFilter.addEventListener("change", applyFilters);
+resetBtn.addEventListener("click", () => {{
+  searchInput.value = "";
+  familyFilter.value = "";
+  applyFilters();
+}});
+</script>
+
+</body>
+</html>
